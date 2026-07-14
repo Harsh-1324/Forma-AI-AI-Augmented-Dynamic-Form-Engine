@@ -1,0 +1,123 @@
+{
+  "name": "auto_insurance_claim",
+  "version": 1,
+  "description": "Auto insurance claim intake form with 3-level branching logic",
+  "isActive": true,
+  "sections": [
+    {
+      "key": "incident_basics",
+      "title": "Incident Basics",
+      "fields": [
+        {
+          "key": "incidentType",
+          "label": "What happened?",
+          "type": "dropdown",
+          "required": true,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Animal Collision", "value": "animal_collision" },
+            { "label": "Collision with another vehicle", "value": "vehicle_collision" },
+            { "label": "Theft", "value": "theft" },
+            { "label": "Weather damage", "value": "weather_damage" }
+          ]
+        },
+        {
+          "key": "vehicleMake",
+          "label": "Vehicle make",
+          "type": "text",
+          "required": true,
+          "aiExtractable": true,
+          "validationRegex": "^[A-Za-z ]{2,30}$",
+          "validationMessage": "Enter a valid vehicle make"
+        }
+      ]
+    },
+    {
+      "key": "animal_collision_details",
+      "title": "Animal Collision Details",
+      "showIf": { "field": "incidentType", "operator": "equals", "value": "animal_collision" },
+      "fields": [
+        {
+          "key": "animalType",
+          "label": "What type of animal?",
+          "type": "dropdown",
+          "required": true,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Deer", "value": "deer" },
+            { "label": "Dog", "value": "dog" },
+            { "label": "Other", "value": "other" }
+          ]
+        },
+        {
+          "key": "damageArea",
+          "label": "Where is the damage?",
+          "type": "dropdown",
+          "required": true,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Windshield", "value": "windshield" },
+            { "label": "Front bumper", "value": "front_bumper" },
+            { "label": "Side panel", "value": "side_panel" }
+          ]
+        },
+        {
+          "key": "wasAnimalKilled",
+          "label": "Was the animal killed?",
+          "type": "radio",
+          "required": false,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Yes", "value": "yes" },
+            { "label": "No", "value": "no" },
+            { "label": "Unknown", "value": "unknown" }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "windshield_damage_followup",
+      "title": "Windshield Damage Follow-up",
+      "showIf": { "field": "damageArea", "operator": "equals", "value": "windshield" },
+      "fields": [
+        {
+          "key": "visibilityImpaired",
+          "label": "Is your visibility impaired while driving?",
+          "type": "radio",
+          "required": true,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Yes", "value": "yes" },
+            { "label": "No", "value": "no" }
+          ]
+        },
+        {
+          "key": "glassReplacementNeeded",
+          "label": "Does the windshield need full replacement?",
+          "type": "checkbox",
+          "required": false,
+          "aiExtractable": false
+        }
+      ]
+    },
+    {
+      "key": "vehicle_collision_details",
+      "title": "Vehicle Collision Details",
+      "showIf": { "field": "incidentType", "operator": "equals", "value": "vehicle_collision" },
+      "fields": [
+        {
+          "key": "otherPartyInsured",
+          "label": "Was the other party insured?",
+          "type": "radio",
+          "required": true,
+          "aiExtractable": true,
+          "options": [
+            { "label": "Yes", "value": "yes" },
+            { "label": "No", "value": "no" },
+            { "label": "Unknown", "value": "unknown" }
+          ]
+        }
+      ]
+    }
+  ]
+}
