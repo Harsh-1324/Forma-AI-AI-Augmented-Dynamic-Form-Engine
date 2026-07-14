@@ -1,0 +1,52 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #f7f8fa;
+  color: #1a1a1a;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  width: 100%;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.ai-flagged {
+  border-color: #f59e0b !important;
+  background: #fffbeb;
+}
+
+.conditional-section-enter {
+  overflow: hidden;
+}
