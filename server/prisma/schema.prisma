@@ -29,12 +29,20 @@ enum ShowIfOperator {
   exists
 }
 
+enum SubmissionStatus {
+  draft
+  in_review
+  submitted
+}
+
 model User {
   id       String @id @default(cuid())
   name     String
   email    String @unique
   password String
   role     Role   @default(USER)
+
+  submissions FormSubmission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,6 +56,8 @@ model FormSchema {
   isActive    Boolean @default(true)
 
   sections Section[]
+
+  submissions FormSubmission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -87,4 +97,27 @@ model Field {
 
   sectionId String
   section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model FormSubmission {
+  id String @id @default(cuid())
+
+  formSchemaId String
+  formSchema   FormSchema @relation(fields: [formSchemaId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  status SubmissionStatus @default(draft)
+
+  data Json @default("{}")
+
+  aiRawText             String?
+  aiExtractedFields     Json?
+  aiLowConfidenceFields Json?
+  aiModel               String?
+  aiExtractedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
