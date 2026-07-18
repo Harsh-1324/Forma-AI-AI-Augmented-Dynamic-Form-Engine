@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum FieldType {
+  text
+  number
+  date
+  dropdown
+  checkbox
+  textarea
+  radio
+}
+
+enum ShowIfOperator {
+  equals
+  notEquals
+  in
+  exists
+}
+
+enum SubmissionStatus {
+  draft
+  in_review
+  submitted
+}
+
+model User {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+
+  submissions FormSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FormSchema {
+  id          String  @id @default(cuid())
+  name        String
+  version     Int     @default(1)
+  description String?
+  isActive    Boolean @default(true)
+
+  sections Section[]
+
+  submissions FormSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Section {
+  id    String @id @default(cuid())
+  key   String
+  title String
+
+  showIfField    String?
+  showIfOperator ShowIfOperator?
+  showIfValue    String?
+
+  formSchemaId String
+  formSchema   FormSchema @relation(fields: [formSchemaId], references: [id], onDelete: Cascade)
+
+  fields Field[]
+}
+
+model Field {
+  id       String    @id @default(cuid())
+  key      String
+  label    String
+  type     FieldType
+  required Boolean   @default(false)
+
+  validationRegex   String?
+  validationMessage String?
+  aiExtractable     Boolean @default(true)
+
+  showIfField    String?
+  showIfOperator ShowIfOperator?
+  showIfValue    String?
+
+  options Json?
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model FormSubmission {
+  id String @id @default(cuid())
+
+  formSchemaId String
+  formSchema   FormSchema @relation(fields: [formSchemaId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  status SubmissionStatus @default(draft)
+
+  data Json @default("{}")
+
+  aiRawText             String?
+  aiExtractedFields     Json?
+  aiLowConfidenceFields Json?
+  aiModel               String?
+  aiExtractedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

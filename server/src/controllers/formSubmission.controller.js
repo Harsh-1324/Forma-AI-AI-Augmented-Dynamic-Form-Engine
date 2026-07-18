@@ -1,14 +1,30 @@
-import FormSubmission from "../models/FormSubmission.model.js";
-import FormSchema from "../models/FormSchema.model.js";
+import prisma from "../config/prisma.js";
 import { validateAgainstSchema } from "../services/formEngine/schemaValidator.js";
 
 export async function createSubmission(req, res, next) {
   try {
     const { formSchemaId, userId } = req.body;
-    const schemaExists = await FormSchema.exists({ _id: formSchemaId });
-    if (!schemaExists) return res.status(404).json({ message: "Form schema not found" });
 
-    const submission = await FormSubmission.create({ formSchemaId, userId, data: {} });
+    const schemaExists = await prisma.formSchema.findUnique({
+      where: {
+        id: formSchemaId,
+      },
+    });
+
+    if (!schemaExists) {
+      return res.status(404).json({
+        message: "Form schema not found",
+      });
+    }
+
+    const submission = await prisma.formSubmission.create({
+      data: {
+        formSchemaId,
+        userId,
+        data: {},
+      },
+    });
+
     res.status(201).json(submission);
   } catch (err) {
     next(err);
@@ -17,8 +33,18 @@ export async function createSubmission(req, res, next) {
 
 export async function getSubmission(req, res, next) {
   try {
-    const submission = await FormSubmission.findById(req.params.id);
-    if (!submission) return res.status(404).json({ message: "Submission not found" });
+    const submission = await prisma.formSubmission.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!submission) {
+      return res.status(404).json({
+        message: "Submission not found",
+      });
+    }
+
     res.json(submission);
   } catch (err) {
     next(err);
@@ -29,30 +55,81 @@ export async function getSubmission(req, res, next) {
 export async function saveSubmissionProgress(req, res, next) {
   try {
     const { data } = req.body;
-    const submission = await FormSubmission.findByIdAndUpdate(
-      req.params.id,
-      { $set: { data, status: "draft" } },
-      { new: true }
-    );
-    if (!submission) return res.status(404).json({ message: "Submission not found" });
+
+    const submission = await prisma.formSubmission.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        data,
+        status: "draft",
+      },
+    });
+
     res.json(submission);
   } catch (err) {
+    if (err.code === "P2025") {
+      return res.status(404).json({
+        message: "Submission not found",
+      });
+    }
+
     next(err);
   }
 }
 
 export async function finalizeSubmission(req, res, next) {
   try {
-    const submission = await FormSubmission.findById(req.params.id);
-    if (!submission) return res.status(404).json({ message: "Submission not found" });
+    const submission = await prisma.formSubmission.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
 
-    const schema = await FormSchema.findById(submission.formSchemaId);
+    if (!submission) {
+      return res.status(404).json({
+        message: "Submission not found",
+      });
+    }
+
+    const schema = await prisma.formSchema.findUnique({
+      where: {
+        id: submission.formSchemaId,
+      },
+      include: {
+        sections: {
+          include: {
+            fields: true,
+          },
+        },
+      },
+    });
+
+    if (!schema) {
+      return res.status(404).json({
+        message: "Form schema not found",
+      });
+    }
+
     const { valid, errors } = validateAgainstSchema(schema, submission.data);
-    if (!valid) return res.status(400).json({ message: "Validation failed", errors });
 
-    submission.status = "submitted";
-    await submission.save();
-    res.json(submission);
+    if (!valid) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors,
+      });
+    }
+
+    const updatedSubmission = await prisma.formSubmission.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        status: "submitted",
+      },
+    });
+
+    res.json(updatedSubmission);
   } catch (err) {
     next(err);
   }
