@@ -3,7 +3,7 @@
 InsurTech / Workflow Automation project. Users describe a claim in plain
 language ("I hit a deer on I-95 in my Honda, windshield shattered") and an
 LLM extraction pipeline pre-fills a dynamically-rendered, branching React
-form whose structure and validation rules live entirely in a MongoDB
+form whose structure and validation rules live entirely in a MongoDB/Postgres (prisma)
 JSON schema.
 
 ## Repo name
@@ -12,12 +12,12 @@ JSON schema.
 ## Stack
 - **Frontend:** React, React Hook Form, Zustand (state), Vite
 - **Backend:** Node.js, Express, LangChain, MongoDB (Mongoose)
-- **AI:** OpenAI GPT-4o (or local model) via LangChain structured output
+- **AI:** Gemini (or local model) via LangChain structured output
 
 ## Monorepo layout
 ```
 forma-ai/
-├── server/     # Node.js + LangChain + MongoDB API
+├── server/     # Node.js + LangChain + MongoDB/postgres API
 ├── client/     # React + React Hook Form dynamic form engine
 └── docs/       # architecture notes, sample schemas, API spec
 ```
@@ -27,7 +27,7 @@ forma-ai/
 ### 1. Backend
 ```bash
 cd server
-cp .env.example .env      # fill in MONGO_URI and OPENAI_API_KEY
+cp .env.example .env      # fill in postgress/MONGO_URI and gemini_API_KEY
 npm install
 npm run seed               # loads docs/sample-form-schema.json into Mongo
 npm run dev                 # http://localhost:5000
