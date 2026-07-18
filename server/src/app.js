@@ -8,6 +8,7 @@ import formSubmissionRoutes from "./routes/formSubmission.routes.js";
 import extractionRoutes from "./routes/extraction.routes.js";
 // import aiFormGeneratorRoutes from "./routes/aiFormGenerator.routes.js";
 // import aiAssistantRoutes from "./routes/aiAssistant.routes.js";
+import aiReviewRoutes from "./routes/aiReview.routes.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api/form-submissions", formSubmissionRoutes);
 app.use("/api/extract", extractionRoutes);
 // app.use("/api/ai", aiFormGeneratorRoutes);
 // app.use("/api/ai", aiAssistantRoutes);
+app.use("/api/ai", aiReviewRoutes);
 
 app.use(errorHandler);
 
