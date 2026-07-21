@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -80,30 +83,17 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} noValidate>
           {/* Email field */}
           <div style={{ marginBottom: 20 }}>
-            <label
-              htmlFor="login-email"
-              style={{ display: "block", fontWeight: 600, marginBottom: 6, color: "#111" }}
-            >
+            <Label htmlFor="login-email" className="mb-1.5 block">
               Email
-            </label>
-            <input
+            </Label>
+            <Input
               id="login-email"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                fontSize: "0.95rem",
-                border: `1px solid ${errors.email ? "#dc2626" : "#e5e7eb"}`,
-                borderRadius: 8,
-                outline: "none",
-                background: submitting ? "#f7f8fa" : "#fff",
-                color: "#1a1a1a",
-                transition: "border-color 0.15s",
-              }}
+              className={errors.email ? "border-red-500" : ""}
             />
             {errors.email && (
               <p style={{ color: "#dc2626", fontSize: "0.85rem", marginTop: 4, marginBottom: 0 }}>
@@ -114,30 +104,17 @@ export default function LoginPage() {
 
           {/* Password field */}
           <div style={{ marginBottom: 28 }}>
-            <label
-              htmlFor="login-password"
-              style={{ display: "block", fontWeight: 600, marginBottom: 6, color: "#111" }}
-            >
+            <Label htmlFor="login-password" className="mb-1.5 block">
               Password
-            </label>
-            <input
+            </Label>
+            <Input
               id="login-password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={submitting}
-              style={{
-                width: "100%",
-                padding: "10px 12px",
-                fontSize: "0.95rem",
-                border: `1px solid ${errors.password ? "#dc2626" : "#e5e7eb"}`,
-                borderRadius: 8,
-                outline: "none",
-                background: submitting ? "#f7f8fa" : "#fff",
-                color: "#1a1a1a",
-                transition: "border-color 0.15s",
-              }}
+              className={errors.password ? "border-red-500" : ""}
             />
             {errors.password && (
               <p style={{ color: "#dc2626", fontSize: "0.85rem", marginTop: 4, marginBottom: 0 }}>
@@ -147,24 +124,9 @@ export default function LoginPage() {
           </div>
 
           {/* Submit button */}
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{
-              width: "100%",
-              padding: "12px 0",
-              fontSize: "1rem",
-              fontWeight: 600,
-              color: "#fff",
-              background: submitting ? "#888" : "#111",
-              border: "none",
-              borderRadius: 8,
-              cursor: submitting ? "not-allowed" : "pointer",
-              transition: "background 0.15s",
-            }}
-          >
+          <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? "Signing in…" : "Sign in"}
-          </button>
+          </Button>
         </form>
 
         <p style={{ marginTop: 24, textAlign: "center", color: "#555", fontSize: "0.9rem" }}>
