@@ -4,6 +4,8 @@ import FormListPage from "./routes/FormListPage.jsx";
 import FormFillPage from "./routes/FormFillPage.jsx";
 import ResumeFormPage from "./routes/ResumeFormPage.jsx";
 import LoginPage from "./routes/LoginPage.jsx";
+import SignupPage from "./routes/SignupPage.jsx";
+import DashboardPage from "./routes/DashboardPage.jsx";
 
 export default function App() {
   return (
@@ -13,6 +15,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<FormListPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/forms/:schemaId" element={<FormFillPage />} />
           <Route path="/submissions/:submissionId" element={<ResumeFormPage />} />
         </Routes>
