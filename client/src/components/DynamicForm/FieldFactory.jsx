@@ -16,7 +16,16 @@ const FIELD_COMPONENTS = {
   checkbox: CheckboxField,
 };
 
-export default function FieldFactory({ field, register, error, isAiFlagged }) {
+// Components that use react-hook-form's Controller (shadcn Select, Checkbox)
+// and therefore need `control` instead of `register`.
+const NEEDS_CONTROL = new Set(["dropdown", "radio", "checkbox"]);
+
+export default function FieldFactory({ field, register, control, error, isAiFlagged }) {
   const Component = FIELD_COMPONENTS[field.type] || TextField;
+
+  // Pass `control` for Controller-based fields, `register` for the rest.
+  if (NEEDS_CONTROL.has(field.type)) {
+    return <Component field={field} control={control} error={error} isAiFlagged={isAiFlagged} />;
+  }
   return <Component field={field} register={register} error={error} isAiFlagged={isAiFlagged} />;
 }
