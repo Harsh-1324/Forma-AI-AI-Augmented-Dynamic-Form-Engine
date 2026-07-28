@@ -27,6 +27,7 @@ export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubm
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -57,6 +58,7 @@ export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubm
                   key={field.key}
                   field={field}
                   register={register}
+                  control={control}
                   error={errors[field.key]}
                   isAiFlagged={lowConfidenceFields.has(field.key)}
                 />

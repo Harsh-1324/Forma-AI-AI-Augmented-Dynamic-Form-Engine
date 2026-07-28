@@ -1,14 +1,16 @@
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export default function TextField({ field, register, error, isAiFlagged }) {
   return (
     <div className="card">
-      <label className="field-label" htmlFor={field.key}>
+      <Label htmlFor={field.key} className="mb-1.5 block">
         {field.label}
-      </label>
-      <input
+      </Label>
+      <Input
         id={field.key}
         type={field.type === "number" ? "number" : "text"}
-        className={isAiFlagged ? "ai-flagged" : ""}
-        style={{ width: "100%", padding: 10, borderRadius: 6, border: "1px solid #d1d5db" }}
+        className={isAiFlagged ? "border-amber-400 ring-2 ring-amber-200" : ""}
         {...register(field.key)}
       />
       {error && <p className="field-error">{error.message}</p>}
