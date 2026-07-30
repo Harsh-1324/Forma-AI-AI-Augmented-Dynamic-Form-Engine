@@ -1,25 +1,43 @@
-export default function DropdownField({ field, register, error, isAiFlagged }) {
+import { Controller } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
+export default function DropdownField({ field, control, error, isAiFlagged }) {
   return (
     <div className="card">
-      <label className="field-label" htmlFor={field.key}>
+      <Label htmlFor={field.key} className="mb-1.5 block">
         {field.label}
-      </label>
-      <select
-        id={field.key}
-        className={isAiFlagged ? "ai-flagged" : ""}
-        style={{ width: "100%", padding: 10, borderRadius: 6, border: "1px solid #d1d5db" }}
-        defaultValue=""
-        {...register(field.key)}
-      >
-        <option value="" disabled>
-          Select...
-        </option>
-        {(field.options || []).map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      </Label>
+      <Controller
+        name={field.key}
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <Select value={value ?? ""} onValueChange={onChange}>
+            <SelectTrigger
+              id={field.key}
+              className={
+                "w-full " +
+                (isAiFlagged ? "border-amber-400 ring-2 ring-amber-200" : "")
+              }
+            >
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              {(field.options || []).map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
       {error && <p className="field-error">{error.message}</p>}
     </div>
   );

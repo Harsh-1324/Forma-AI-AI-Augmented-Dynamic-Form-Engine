@@ -10,7 +10,7 @@
    `POST /api/extract { formSchemaId, text }`.
 4. Backend `extraction.controller.js` loads the schema, builds a field
    spec (`schemaToPrompt.js`), and calls `runExtractionChain` (LangChain +
-   OpenAI) to get back strict JSON matching the schema's field keys.
+   GeminiAI) to get back strict JSON matching the schema's field keys.
 5. Client merges the returned `extractedFields` into React Hook Form via
    `mergeAIResultIntoForm.js`, and highlights `lowConfidenceFields` using
    `AIReviewBanner`.
