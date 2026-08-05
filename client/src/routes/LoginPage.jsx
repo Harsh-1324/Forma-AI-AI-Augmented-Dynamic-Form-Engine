@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -11,6 +12,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+
+  const token = useAuthStore((s) => s.token);
+  const login = useAuthStore((s) => s.login);
+  const navigate = useNavigate();
+
+  // If already logged in, skip the login form entirely
+  if (token) return <Navigate to="/dashboard" replace />;
 
   function validate() {
     const next = {};
@@ -33,11 +41,12 @@ export default function LoginPage() {
 
     setSubmitting(true);
     try {
-      // TODO: Replace this timeout with an actual backend API call, e.g.:
+      // TODO: Replace with a real backend API call, e.g.:
       //   const res = await AuthAPI.login({ email: email.trim(), password });
-      //   // store token, redirect, etc.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      alert("Login successful (placeholder).");
+      //   login(res.token, res.user);
+      // Using a fake placeholder token until real auth is wired up.
+      login("fake-jwt-token", { email: email.trim() });
+      navigate("/dashboard", { replace: true });
     } catch {
       setErrors({ form: "Login failed. Please try again." });
     } finally {

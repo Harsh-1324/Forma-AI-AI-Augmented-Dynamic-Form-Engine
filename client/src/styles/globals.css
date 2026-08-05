@@ -181,3 +181,23 @@ body {
     @apply font-sans;
   }
 }
+
+/* ---- Responsive navbar helpers ---- */
+
+.visible-mobile-only {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .visible-mobile-only {
+    display: flex;
+  }
+}
+
+/* Push footer to bottom when page content is short */
+.app-main {
+  flex: 1;
+}
