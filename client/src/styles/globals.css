@@ -384,3 +384,82 @@ h1, h2, h3, strong {
 .navbar-logo:hover {
   opacity: 0.9;
 }
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navbar-link {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.navbar-link:hover {
+  color: #fafaf9;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-mobile-menu {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(9, 9, 11, 0.95);
+  backdrop-filter: blur(16px);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.navbar-mobile-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.15s ease;
+}
+
+.navbar-mobile-link:hover {
+  color: #fafaf9;
+}
+
+.navbar-mobile-actions {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 8px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---- Responsive navbar helpers ---- */
+.visible-mobile-only {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .visible-mobile-only {
+    display: flex;
+  }
+}
+
+/* Push footer to bottom when page content is short */
+.app-main {
+  flex: 1;
+}
