@@ -3,11 +3,7 @@ import { getLLM } from "./llmClient.js";
 import { schemaToFieldSpec, buildFieldSpecDescription } from "./schemaToPrompt.js";
 import { buildClaimExtractionPrompt } from "./prompts/claimExtraction.prompt.js";
 
-/**
- * runExtractionChain
- * Takes a MongoDB FormSchema doc + a user's free-text story and returns
- * { fields, lowConfidenceFields, model } strictly matching the schema's keys.
- */
+// Runs the LangChain extraction process using Gemini to extract key fields from unstructured text
 export async function runExtractionChain({ schema, text }) {
   const fieldSpec = schemaToFieldSpec(schema);
   const fieldSpecDescription = buildFieldSpecDescription(fieldSpec);
@@ -28,7 +24,7 @@ export async function runExtractionChain({ schema, text }) {
   return {
     fields,
     lowConfidenceFields: (parsed.lowConfidenceFields || []).filter((k) => allowedKeys.has(k)),
-    model: process.env.LLM_MODEL || "gpt-4o",
+    model: process.env.GEMINI_MODEL || "gemini-flash-lite-latest",
   };
 }
 

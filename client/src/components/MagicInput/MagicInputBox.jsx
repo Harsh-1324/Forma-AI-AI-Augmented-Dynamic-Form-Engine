@@ -24,7 +24,7 @@ export default function MagicInputBox({ onExtract }) {
         placeholder='e.g. "I hit a deer on I-95 yesterday in my Honda, and the windshield shattered."'
         value={text}
         onChange={(e) => setText(e.target.value)}
-        style={{ width: "100%", padding: 10, borderRadius: 6, border: "1px solid #d1d5db" }}
+        className="magic-textarea"
         disabled={isExtracting}
       />
       <div style={{ marginTop: 10 }}>

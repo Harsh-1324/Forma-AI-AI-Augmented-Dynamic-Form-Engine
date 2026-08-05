@@ -6,6 +6,6 @@ export const useAIStore = create((set) => ({
   error: null,
 
   startExtraction: (text) => set({ isExtracting: true, lastRawText: text, error: null }),
-  finishExtraction: () => set({ isExtracting: false }),
+  finishExtraction: () => set({ isExtracting: false, error: null }),
   setError: (error) => set({ isExtracting: false, error }),
 }));

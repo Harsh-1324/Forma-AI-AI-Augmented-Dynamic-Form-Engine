@@ -25,7 +25,7 @@ export default function FormFillPage() {
 
   useEffect(() => {
     if (!schemaId) return;
-    FormSubmissionAPI.create(schemaId, null).then((sub) => setSubmissionId(sub._id));
+    FormSubmissionAPI.create(schemaId, null).then((sub) => setSubmissionId(sub.id));
   }, [schemaId]);
 
   useAutosave({ submissionId, values: formValues });
@@ -51,8 +51,8 @@ export default function FormFillPage() {
 
   return (
     <div>
-      <h1>{schema.name}</h1>
-      <p style={{ color: "#555" }}>{schema.description}</p>
+      <h1 className="page-title">{schema.name}</h1>
+      <p className="page-subtitle">{schema.description}</p>
 
       <MagicInputBox onExtract={extract} />
       <AIReviewBanner lowConfidenceFields={lowConfidenceFields} />

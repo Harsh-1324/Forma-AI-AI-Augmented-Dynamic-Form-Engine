@@ -11,14 +11,19 @@ export default function FormListPage() {
 
   return (
     <div>
-      <h1>Start a claim</h1>
-      {schemas.length === 0 && <p>No form types available yet. Run the seed script.</p>}
-      {schemas.map((s) => (
-        <Link key={s._id} to={`/forms/${s._id}`} className="card" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-          <strong>{s.name}</strong>
-          <p style={{ margin: "6px 0 0", color: "#555" }}>{s.description}</p>
-        </Link>
-      ))}
+      <h1 className="page-title">Active Claim Portals</h1>
+      <p className="page-subtitle">Select an intake form schema below to begin your AI-assisted claim submission.</p>
+
+      {schemas.length === 0 && <p style={{ color: "#78716c", fontStyle: "italic" }}>No active forms found. Please run the database seed script.</p>}
+      
+      <div className="form-list-grid">
+        {schemas.map((s) => (
+          <Link key={s.id} to={`/forms/${s.id}`} className="form-card-link">
+            <strong style={{ fontSize: "1.15rem" }}>{s.name}</strong>
+            <p style={{ margin: "8px 0 0", color: "#a1a1aa", fontSize: "0.925rem" }}>{s.description}</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

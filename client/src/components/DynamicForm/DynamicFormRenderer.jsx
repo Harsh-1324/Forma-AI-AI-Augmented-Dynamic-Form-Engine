@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FieldFactory from "./FieldFactory.jsx";
@@ -7,12 +7,7 @@ import { buildYupSchema } from "./validation/buildYupSchema.js";
 import { evaluateShowIf } from "../../utils/evaluateShowIf.js";
 import { useFormStore } from "../../store/useFormStore.js";
 
-/**
- * DynamicFormRenderer
- * Takes a MongoDB-backed form `schema` (sections -> fields, each with an
- * optional `showIf`) and renders the entire UI purely from that data —
- * no hardcoded form markup for any specific form type.
- */
+// Dynamically renders the form layout based on the schema blueprint
 export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubmit }) {
   const lowConfidenceFields = useFormStore((s) => s.lowConfidenceFields);
 
@@ -28,6 +23,7 @@ export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubm
     handleSubmit,
     watch,
     control,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues,
@@ -37,6 +33,10 @@ export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubm
       return yupResolver(yupSchema)(values, context, options);
     },
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const values = watch();
 
