@@ -3,7 +3,8 @@ import { validateAgainstSchema } from "../services/formEngine/schemaValidator.js
 
 export async function createSubmission(req, res, next) {
   try {
-    const { formSchemaId, userId } = req.body;
+    const { formSchemaId } = req.body;
+    const userId = req.user?.id || req.body.userId;
 
     const schemaExists = await prisma.formSchema.findUnique({
       where: {
@@ -45,6 +46,13 @@ export async function getSubmission(req, res, next) {
       });
     }
 
+    // Enforce ownership: only the owner or an ADMIN can view this submission draft
+    if (submission.userId && req.user && submission.userId !== req.user.id && req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Access denied: You do not own this submission",
+      });
+    }
+
     res.json(submission);
   } catch (err) {
     next(err);
@@ -56,7 +64,26 @@ export async function saveSubmissionProgress(req, res, next) {
   try {
     const { data } = req.body;
 
-    const submission = await prisma.formSubmission.update({
+    const submission = await prisma.formSubmission.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    if (!submission) {
+      return res.status(404).json({
+        message: "Submission not found",
+      });
+    }
+
+    // Enforce ownership: only the owner or an ADMIN can modify this submission
+    if (submission.userId && req.user && submission.userId !== req.user.id && req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Access denied: You do not own this submission",
+      });
+    }
+
+    const updatedSubmission = await prisma.formSubmission.update({
       where: {
         id: req.params.id,
       },
@@ -66,14 +93,8 @@ export async function saveSubmissionProgress(req, res, next) {
       },
     });
 
-    res.json(submission);
+    res.json(updatedSubmission);
   } catch (err) {
-    if (err.code === "P2025") {
-      return res.status(404).json({
-        message: "Submission not found",
-      });
-    }
-
     next(err);
   }
 }
@@ -89,6 +110,13 @@ export async function finalizeSubmission(req, res, next) {
     if (!submission) {
       return res.status(404).json({
         message: "Submission not found",
+      });
+    }
+
+    // Enforce ownership: only the owner or an ADMIN can finalize this submission
+    if (submission.userId && req.user && submission.userId !== req.user.id && req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Access denied: You do not own this submission",
       });
     }
 
