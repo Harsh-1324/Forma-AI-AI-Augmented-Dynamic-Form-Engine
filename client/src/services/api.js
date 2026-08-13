@@ -17,6 +17,7 @@ api.interceptors.request.use((config) => {
 export const FormSchemaAPI = {
   list: () => api.get("/form-schemas").then((r) => r.data),
   get: (id) => api.get(`/form-schemas/${id}`).then((r) => r.data),
+  create: (data) => api.post("/form-schemas", data).then((r) => r.data),
 };
 
 export const ExtractionAPI = {
