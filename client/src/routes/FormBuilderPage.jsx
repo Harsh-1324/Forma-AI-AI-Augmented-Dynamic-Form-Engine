@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash, Settings } from "lucide-react";
+import { FormSchemaAPI } from "../services/api.js";
 
 // Draggable Sidebar Item Component
 function DraggableFieldType({ type, label }) {
@@ -53,6 +55,7 @@ function DroppableCanvas({ children }) {
 }
 
 export default function FormBuilderPage() {
+  const navigate = useNavigate();
   const [formName, setFormName] = useState("New Custom Claim Form");
   const [formDescription, setFormDescription] = useState("Explain the incident below.");
   
@@ -116,27 +119,81 @@ export default function FormBuilderPage() {
     );
   }
 
+  // Serialize canvas fields to JSON structure matching the Prisma DB model specs
+  const handleSaveForm = async () => {
+    if (!formName.trim()) {
+      alert("Please enter a form title");
+      return;
+    }
+    if (fields.length === 0) {
+      alert("Please add at least one field to the form");
+      return;
+    }
+
+    // build nested data structure matching Prisma expectations
+    const payload = {
+      name: formName.trim().toLowerCase().replace(/\s+/g, "_"),
+      description: formDescription,
+      version: 1,
+      isActive: true,
+      sections: {
+        create: [
+          {
+            key: "general_details",
+            title: "General Details",
+            fields: {
+              create: fields.map((f) => ({
+                key: f.key.trim(),
+                label: f.label.trim(),
+                type: f.type,
+                required: f.required,
+                aiExtractable: f.aiExtractable,
+              })),
+            },
+          },
+        ],
+      },
+    };
+
+    try {
+      // call api to save the new dynamic form schema
+      await FormSchemaAPI.create(payload);
+      alert("Form schema successfully created and saved!");
+      navigate("/forms");
+    } catch (err) {
+      alert(err.message || "Failed to save form schema");
+    }
+  };
+
   const selectedField = fields.find((f) => f.id === editingFieldId);
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="max-w-5xl mx-auto p-4">
         {/* Top Header metadata editor */}
-        <div className="mb-6 p-4 rounded-xl border border-stone-800 bg-stone-950/20 backdrop-blur-md">
-          <input
-            type="text"
-            value={formName}
-            onChange={(e) => setFormName(e.target.value)}
-            className="w-full text-2xl font-bold bg-transparent border-none text-white focus:outline-none mb-1"
-            placeholder="Form Title"
-          />
-          <input
-            type="text"
-            value={formDescription}
-            onChange={(e) => setFormDescription(e.target.value)}
-            className="w-full text-sm bg-transparent border-none text-stone-400 focus:outline-none"
-            placeholder="Describe what this form is used for"
-          />
+        <div className="mb-6 p-4 rounded-xl border border-stone-800 bg-stone-950/20 backdrop-blur-md flex items-center justify-between">
+          <div className="flex-1 mr-4">
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              className="w-full text-2xl font-bold bg-transparent border-none text-white focus:outline-none mb-1"
+              placeholder="Form Title"
+            />
+            <input
+              type="text"
+              value={formDescription}
+              onChange={(e) => setFormDescription(e.target.value)}
+              className="w-full text-sm bg-transparent border-none text-stone-400 focus:outline-none"
+              placeholder="Describe what this form is used for"
+            />
+          </div>
+          <Button
+            onClick={handleSaveForm}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-6 rounded-lg transition-colors border-none"
+          >
+            Save Form
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
