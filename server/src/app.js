@@ -9,6 +9,7 @@ import extractionRoutes from "./routes/extraction.routes.js";
 import aiFormGeneratorRoutes from "./routes/aiFormGenerator.routes.js";
 import aiAssistantRoutes from "./routes/aiAssistant.routes.js";
 import aiReviewRoutes from "./routes/aiReview.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/extract", extractionRoutes);
 app.use("/api/ai", aiFormGeneratorRoutes);
 app.use("/api/ai", aiAssistantRoutes);
 app.use("/api/ai", aiReviewRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use(errorHandler);
 
