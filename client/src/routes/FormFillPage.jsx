@@ -9,7 +9,7 @@ import { useFormStore } from "../store/useFormStore.js";
 import MagicInputBox from "../components/MagicInput/MagicInputBox.jsx";
 import AIReviewBanner from "../components/MagicInput/AIReviewBanner.jsx";
 import DynamicFormRenderer from "../components/DynamicForm/DynamicFormRenderer.jsx";
-import { FormSubmissionAPI } from "../services/api.js";
+import { FormSubmissionAPI, AIAssistantAPI } from "../services/api.js";
 
 export default function FormFillPage() {
   const { schemaId } = useParams();
@@ -55,6 +55,39 @@ export default function FormFillPage() {
     navigate(`/submissions/${submissionId}`);
   };
 
+  // call the assistant API with user's question and current form answers
+  const handleSendChat = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMessage = { role: "user", text: chatInput };
+    setChatMessages((prev) => [...prev, userMessage]);
+    setChatInput("");
+
+    // add a temporary waiting state
+    const thinkingMessage = { role: "assistant", text: "Thinking..." };
+    setChatMessages((prev) => [...prev, thinkingMessage]);
+
+    try {
+      const response = await AIAssistantAPI.ask(schemaId, chatInput, formValues);
+      
+      setChatMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = { role: "assistant", text: response.answer };
+        return next;
+      });
+    } catch (err) {
+      setChatMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = {
+          role: "assistant",
+          text: err.message || "I apologize, but I failed to fetch an answer.",
+        };
+        return next;
+      });
+    }
+  };
+
   if (loading) return <p className="text-stone-400 text-center mt-12">Loading form...</p>;
   if (!schema) return <p className="text-red-400 text-center mt-12">Form not found.</p>;
 
@@ -69,6 +102,7 @@ export default function FormFillPage() {
       <DynamicFormRenderer
         schema={schema}
         defaultValues={extractedValues}
+        onValuesChange={setFormValues}
         onSubmit={(data) => {
           setFormValues(data);
           handleSubmit(data);
@@ -182,7 +216,7 @@ export default function FormFillPage() {
               ))}
             </div>
 
-            {/* Chat input box placeholder */}
+            {/* Chat input box */}
             <div
               style={{
                 padding: 16,
@@ -191,7 +225,7 @@ export default function FormFillPage() {
               }}
             >
               <form
-                onSubmit={(e) => e.preventDefault()}
+                onSubmit={handleSendChat}
                 style={{ display: "flex", gap: 8 }}
               >
                 <input

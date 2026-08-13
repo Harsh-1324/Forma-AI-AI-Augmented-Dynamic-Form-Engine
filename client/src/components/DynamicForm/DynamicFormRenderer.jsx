@@ -8,7 +8,7 @@ import { evaluateShowIf } from "../../utils/evaluateShowIf.js";
 import { useFormStore } from "../../store/useFormStore.js";
 
 // Dynamically renders the form layout based on the schema blueprint
-export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubmit }) {
+export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubmit, onValuesChange }) {
   const lowConfidenceFields = useFormStore((s) => s.lowConfidenceFields);
 
   // Flatten all fields once so the yup schema always matches what's
@@ -39,6 +39,12 @@ export default function DynamicFormRenderer({ schema, defaultValues = {}, onSubm
   }, [defaultValues, reset]);
 
   const values = watch();
+
+  useEffect(() => {
+    if (onValuesChange) {
+      onValuesChange(values);
+    }
+  }, [values, onValuesChange]);
 
   if (!schema) return null;
 
