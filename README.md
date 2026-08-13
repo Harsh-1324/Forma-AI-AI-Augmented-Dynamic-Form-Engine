@@ -1,59 +1,34 @@
-# Forma AI — AI-Augmented Dynamic Form Engine
+# 🚀 Forma AI 
 
-InsurTech / Workflow Automation project. Users describe a claim in plain
-language ("I hit a deer on I-95 in my Honda, windshield shattered") and an
-LLM extraction pipeline pre-fills a dynamically-rendered, branching React
-form whose structure and validation rules live entirely in a MongoDB/PostgreSQL (prisma)
-JSON schema.
+> **An AI-Augmented Dynamic Form Engine for InsurTech and Workflow Automation.**
+---
 
-## Repo name
-`forma-ai`
+## 📖 Abstract
+**Forma AI** is a comprehensive full-stack web application designed to streamline complex data entry workflows in the InsurTech space. By leveraging Large Language Models (LLMs), the system allows users to describe a claim in plain language (e.g., *"I hit a deer on I-95 in my Honda, windshield shattered"*). An advanced extraction pipeline then processes this text to accurately pre-fill a dynamically rendered, branching React form. The form's structure, nested conditionals, and validation rules are entirely driven by a robust JSON schema managed via PostgreSQL and Prisma.
 
-## Stack
-- **Frontend:** React, React Hook Form, Zustand (state), Vite
-- **Backend:** Node.js, Express, LangChain, PostgreSQL/MongoDB (Mongoose)
-- **AI:** Gemini (or local model) via LangChain structured output
+## 🎯 Problem Statement & Solution
+- **The Problem:** Traditional insurance claim forms and enterprise data entry systems are rigid, excessively long, and time-consuming. Users often abandon forms or enter inaccurate data due to the cognitive load of navigating irrelevant fields.
+- **The Solution:** Forma AI introduces a "Magic Input" paradigm. By allowing users to naturally describe their situation, the AI instantly structures the data. The UI then dynamically generates only the necessary follow-up fields based on a 3-level deep branching logic schema, significantly reducing friction and processing time.
 
-## Monorepo layout
-```
-forma-ai/
-├── server/     # Node.js + LangChain + MongoDB/PostgreSQL API
-├── client/     # React + React Hook Form dynamic form engine
-└── docs/       # architecture notes, sample schemas, API spec
-```
+## ✨ Key Features
+*   **Intelligent Extraction Pipeline:** Utilizes LangChain and Gemini to parse unstructured narrative text into strict JSON matching the active form schema.
+*   **Dynamic Form Engine:** Built with React Hook Form to dynamically render text, dates, dropdowns, and checkboxes based on database-driven schemas.
+*   **Complex Branching Logic:** Evaluates nested `showIf` conditions on the fly to reveal or hide form sections dynamically, complete with Framer Motion UI animations.
+*   **Smart Validation & Review:** Highlights low-confidence AI extractions with review banners and visual indicators, ensuring data integrity before submission.
+*   **Resilient State Management:** Features debounced auto-saving capabilities to capture draft states seamlessly without overwhelming the database.
 
-## Quick start
+## 🛠 Tech Stack
+- **Frontend:** React, React Hook Form, Zustand (State Management), Framer Motion, Vite
+- **Backend:** Node.js, Express, Prisma ORM
+- **Database:** PostgreSQL
+- **AI / NLP:** Gemini API, LangChain (Structured Output)
 
-### 1. Backend
-```bash
-cd server
-cp .env.example .env      # fill in PostgreSQL/MONGO_URI and gemini_API_KEY
-npm install
-npm run seed               # loads docs/sample-form-schema.json into Mongo
-npm run dev                 # http://localhost:5000
-```
+## ⚙️ System Architecture
+The backend is structured using enterprise-grade Node.js patterns to ensure high scalability and maintainability. 
+*   **Decoupled Services:** Database query operations and LLM extraction logic are isolated into dedicated service layers (`/services`), moving away from tightly coupled monolithic controllers.
+*   **Schema-Driven UI:** The frontend acts as a rendering engine, entirely agnostic of specific form fields until it receives the structured JSON configuration from the PostgreSQL database.
 
-### 2. Frontend
-```bash
-cd client
-cp .env.example .env
-npm install
-npm run dev                 # http://localhost:5173
-```
-
-### 3. Docker (optional, runs Mongo + both services)
-```bash
-docker compose up --build
-```
-
-## Week-wise mapping
-
-| Week | Backend | Frontend |
-|------|---------|----------|
-| 1 | `models/FormSchema.model.js`, `services/formEngine/conditionEvaluator.js` | `components/DynamicForm/DynamicFormRenderer.jsx`, `FieldFactory.jsx` |
-| 2 | `services/langchain/*` | `components/MagicInput/*` |
-| 3 | `controllers/extraction.controller.js`, `utils/mergeAIResultIntoForm` | `validation/buildYupSchema.js`, `AIReviewBanner.jsx` |
-| 4 | `routes/formSubmission.routes.js` (save/resume) | `hooks/useAutosave.js`, `ConditionalSection.jsx` animations |
-
-See `docs/architecture.md` and `docs/sample-form-schema.json` for the
-3-level branching schema example used in the mid-project review.
+## 🔮 Future Scope
+*   **Live Analytics Dashboard:** Implementation of real-time submission metrics and aggregation charts.
+*   **Visual Drag-and-Drop Form Builder:** An administrative canvas utilizing `@dnd-kit/core` to visually design schemas and save custom form configurations.
+*   **Interactive LLM Assistant Panel:** A contextual side-drawer chat interface to guide users through complex claim scenarios based on the active form state.
