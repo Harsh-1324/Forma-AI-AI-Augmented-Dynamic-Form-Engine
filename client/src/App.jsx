@@ -8,6 +8,7 @@ import LoginPage from "./routes/LoginPage.jsx";
 import SignupPage from "./routes/SignupPage.jsx";
 import DashboardPage from "./routes/DashboardPage.jsx";
 import LandingPage from "./routes/LandingPage.jsx";
+import FormBuilderPage from "./routes/FormBuilderPage.jsx";
 import ProtectedRoute from "./components/common/ProtectedRoute.jsx";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/builder" element={<ProtectedRoute><FormBuilderPage /></ProtectedRoute>} />
           <Route path="/forms/:schemaId" element={<FormFillPage />} />
           <Route path="/submissions/:submissionId" element={<ResumeFormPage />} />
         </Routes>
