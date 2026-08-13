@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -14,89 +15,46 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { AnalyticsAPI } from "../services/api.js";
 
-// ---------- Mock data ----------
-
-// TODO: Replace with real API call to fetch summary statistics
-const SUMMARY_STATS = [
-  { label: "Total Submissions", value: "1,248", accent: "#111" },
-  { label: "AI Success Rate", value: "87%", accent: "#16a34a" },
-  { label: "Avg. Completion Time", value: "4.2 min", accent: "#2563eb" },
-  { label: "Pending Review", value: "23", accent: "#d97706" },
-];
-
-// TODO: Replace with real API call to fetch submissions-over-time data
+// static chart fallback data
 const CHART_DATA = [
-  { day: "Mon", submissions: 42 },
-  { day: "Tue", submissions: 58 },
-  { day: "Wed", submissions: 35 },
-  { day: "Thu", submissions: 71 },
-  { day: "Fri", submissions: 64 },
-  { day: "Sat", submissions: 28 },
-  { day: "Sun", submissions: 19 },
+  { day: "Mon", submissions: 4 },
+  { day: "Tue", submissions: 6 },
+  { day: "Wed", submissions: 3 },
+  { day: "Thu", submissions: 8 },
+  { day: "Fri", submissions: 5 },
+  { day: "Sat", submissions: 2 },
+  { day: "Sun", submissions: 1 },
 ];
-
-// TODO: Replace with real API call to fetch recent submissions
-const RECENT_ACTIVITY = [
-  {
-    id: 1,
-    submitter: "Alice Johnson",
-    formType: "Insurance Claim",
-    status: "Completed",
-    date: "Jul 21, 2026",
-  },
-  {
-    id: 2,
-    submitter: "Bob Martinez",
-    formType: "Onboarding Form",
-    status: "Pending",
-    date: "Jul 21, 2026",
-  },
-  {
-    id: 3,
-    submitter: "Carol Lee",
-    formType: "Expense Report",
-    status: "Flagged",
-    date: "Jul 20, 2026",
-  },
-  {
-    id: 4,
-    submitter: "David Kim",
-    formType: "Insurance Claim",
-    status: "Completed",
-    date: "Jul 20, 2026",
-  },
-  {
-    id: 5,
-    submitter: "Eva Chen",
-    formType: "Feedback Survey",
-    status: "Pending",
-    date: "Jul 19, 2026",
-  },
-];
-
-// ---------- Helpers ----------
 
 const STATUS_STYLES = {
-  Completed: {
-    background: "#f0fdf4",
-    color: "#16a34a",
-    border: "1px solid #bbf7d0",
+  draft: {
+    background: "rgba(255, 255, 255, 0.05)",
+    color: "#a1a1aa",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
   },
-  Pending: {
-    background: "#fffbeb",
-    color: "#d97706",
-    border: "1px solid #fde68a",
+  in_review: {
+    background: "rgba(245, 158, 11, 0.1)",
+    color: "#f59e0b",
+    border: "1px solid rgba(245, 158, 11, 0.2)",
   },
-  Flagged: {
-    background: "#fef2f2",
-    color: "#dc2626",
-    border: "1px solid #fecaca",
+  submitted: {
+    background: "rgba(16, 185, 129, 0.1)",
+    color: "#10b981",
+    border: "1px solid rgba(16, 185, 129, 0.2)",
   },
 };
 
+const STATUS_LABELS = {
+  draft: "Draft",
+  in_review: "In Review",
+  submitted: "Submitted",
+};
+
 function StatusBadge({ status }) {
-  const style = STATUS_STYLES[status] || {};
+  const style = STATUS_STYLES[status] || STATUS_STYLES.draft;
+  const label = STATUS_LABELS[status] || status;
   return (
     <span
       style={{
@@ -108,22 +66,63 @@ function StatusBadge({ status }) {
         whiteSpace: "nowrap",
       }}
     >
-      {status}
+      {label}
     </span>
   );
 }
 
-// ---------- Component ----------
-
 export default function DashboardPage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // fetch stats from the server on load
+  useEffect(() => {
+    AnalyticsAPI.getStats()
+      .then((res) => {
+        setData(res);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || "Failed to load dashboard metrics");
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ color: "#a1a1aa", textAlign: "center", marginTop: 40 }}>
+        Loading dashboard metrics...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ color: "#f43f5e", textAlign: "center", marginTop: 40 }}>
+        {error}
+      </div>
+    );
+  }
+
+  const { totalSubmissions, stats = {}, recentSubmissions = [] } = data || {};
+
+  const summaryCards = [
+    { label: "Total Submissions", value: totalSubmissions, accent: "#fafaf9" },
+    { label: "Submitted", value: stats.submitted || 0, accent: "#10b981" },
+    { label: "In Review", value: stats.in_review || 0, accent: "#f59e0b" },
+    { label: "Drafts", value: stats.draft || 0, accent: "#a1a1aa" },
+  ];
+
   return (
     <div style={{ maxWidth: 960, margin: "0 auto" }}>
       <h1
         style={{
           margin: "0 0 6px",
-          fontSize: "1.5rem",
-          fontWeight: 700,
-          color: "#111",
+          fontSize: "1.75rem",
+          fontWeight: 800,
+          color: "#fafaf9",
+          letterSpacing: "-0.02em",
         }}
       >
         Dashboard
@@ -131,7 +130,7 @@ export default function DashboardPage() {
       <p
         style={{
           margin: "0 0 28px",
-          color: "#555",
+          color: "#a1a1aa",
           fontSize: "0.95rem",
         }}
       >
@@ -147,10 +146,19 @@ export default function DashboardPage() {
           marginBottom: 28,
         }}
       >
-        {SUMMARY_STATS.map((stat) => (
-          <Card key={stat.label}>
+        {summaryCards.map((stat) => (
+          <Card
+            key={stat.label}
+            style={{
+              background: "rgba(255, 255, 255, 0.03)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <CardHeader>
-              <CardDescription>{stat.label}</CardDescription>
+              <CardDescription style={{ color: "#a1a1aa" }}>
+                {stat.label}
+              </CardDescription>
               <CardTitle
                 className="text-2xl"
                 style={{ color: stat.accent, fontWeight: 700 }}
@@ -165,8 +173,9 @@ export default function DashboardPage() {
       {/* ---- Submissions chart ---- */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e5e7eb",
+          background: "rgba(255, 255, 255, 0.03)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: 12,
           padding: "24px 20px",
           marginBottom: 28,
@@ -177,7 +186,7 @@ export default function DashboardPage() {
             margin: "0 0 4px",
             fontSize: "1.1rem",
             fontWeight: 600,
-            color: "#111",
+            color: "#fafaf9",
           }}
         >
           Submissions — Last 7 Days
@@ -185,7 +194,7 @@ export default function DashboardPage() {
         <p
           style={{
             margin: "0 0 20px",
-            color: "#555",
+            color: "#a1a1aa",
             fontSize: "0.875rem",
           }}
         >
@@ -198,28 +207,30 @@ export default function DashboardPage() {
               data={CHART_DATA}
               margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
               <XAxis
                 dataKey="day"
-                tick={{ fontSize: 13, fill: "#555" }}
-                axisLine={{ stroke: "#e5e7eb" }}
+                tick={{ fontSize: 13, fill: "#a1a1aa" }}
+                axisLine={{ stroke: "rgba(255, 255, 255, 0.08)" }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 13, fill: "#555" }}
+                tick={{ fontSize: 13, fill: "#a1a1aa" }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={{
+                  background: "#09090b",
                   borderRadius: 8,
-                  border: "1px solid #e5e7eb",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                   fontSize: "0.875rem",
+                  color: "#fafaf9",
                 }}
               />
               <Bar
                 dataKey="submissions"
-                fill="#111"
+                fill="#818cf8"
                 radius={[6, 6, 0, 0]}
                 barSize={36}
               />
@@ -231,8 +242,9 @@ export default function DashboardPage() {
       {/* ---- Recent activity table ---- */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e5e7eb",
+          background: "rgba(255, 255, 255, 0.03)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: 12,
           padding: "24px 20px",
         }}
@@ -242,7 +254,7 @@ export default function DashboardPage() {
             margin: "0 0 4px",
             fontSize: "1.1rem",
             fontWeight: 600,
-            color: "#111",
+            color: "#fafaf9",
           }}
         >
           Recent Activity
@@ -250,7 +262,7 @@ export default function DashboardPage() {
         <p
           style={{
             margin: "0 0 20px",
-            color: "#555",
+            color: "#a1a1aa",
             fontSize: "0.875rem",
           }}
         >
@@ -268,44 +280,68 @@ export default function DashboardPage() {
             <thead>
               <tr
                 style={{
-                  borderBottom: "1px solid #e5e7eb",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
                   textAlign: "left",
                 }}
               >
-                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#555" }}>
+                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#a1a1aa" }}>
                   Submitter
                 </th>
-                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#555" }}>
+                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#a1a1aa" }}>
                   Form Type
                 </th>
-                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#555" }}>
+                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#a1a1aa" }}>
                   Status
                 </th>
-                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#555" }}>
+                <th style={{ padding: "8px 12px", fontWeight: 600, color: "#a1a1aa" }}>
                   Submitted
                 </th>
               </tr>
             </thead>
             <tbody>
-              {RECENT_ACTIVITY.map((row) => (
-                <tr
-                  key={row.id}
-                  style={{ borderBottom: "1px solid #f3f4f6" }}
-                >
-                  <td style={{ padding: "10px 12px", color: "#111", fontWeight: 500 }}>
-                    {row.submitter}
-                  </td>
-                  <td style={{ padding: "10px 12px", color: "#333" }}>
-                    {row.formType}
-                  </td>
-                  <td style={{ padding: "10px 12px" }}>
-                    <StatusBadge status={row.status} />
-                  </td>
-                  <td style={{ padding: "10px 12px", color: "#555" }}>
-                    {row.date}
+              {recentSubmissions.map((row) => {
+                const dateFormatted = row.createdAt
+                  ? new Date(row.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "N/A";
+
+                return (
+                  <tr
+                    key={row.id}
+                    style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.04)" }}
+                  >
+                    <td style={{ padding: "10px 12px", color: "#fafaf9", fontWeight: 500 }}>
+                      {row.user?.name || row.user?.email || "Anonymous"}
+                    </td>
+                    <td style={{ padding: "10px 12px", color: "#d4d4d8" }}>
+                      {row.formSchema?.name || "Unknown Form"}
+                    </td>
+                    <td style={{ padding: "10px 12px" }}>
+                      <StatusBadge status={row.status} />
+                    </td>
+                    <td style={{ padding: "10px 12px", color: "#a1a1aa" }}>
+                      {dateFormatted}
+                    </td>
+                  </tr>
+                );
+              })}
+              {recentSubmissions.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="4"
+                    style={{
+                      padding: "20px",
+                      textAlign: "center",
+                      color: "#a1a1aa",
+                    }}
+                  >
+                    No recent activity found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
