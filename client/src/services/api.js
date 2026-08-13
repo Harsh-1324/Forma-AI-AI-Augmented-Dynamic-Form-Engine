@@ -38,4 +38,9 @@ export const AnalyticsAPI = {
   getStats: () => api.get("/analytics").then((r) => r.data),
 };
 
+export const AIAssistantAPI = {
+  ask: (formSchemaId, question, currentData) =>
+    api.post("/ai/assistant", { formSchemaId, question, currentData }).then((r) => r.data),
+};
+
 export default api;
