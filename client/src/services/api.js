@@ -1,7 +1,17 @@
 import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore.js";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api",
+});
+
+// Attach JWT bearer token if user is authenticated
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const FormSchemaAPI = {
@@ -21,6 +31,10 @@ export const FormSubmissionAPI = {
   saveProgress: (id, data) =>
     api.patch(`/form-submissions/${id}`, { data }).then((r) => r.data),
   submit: (id) => api.post(`/form-submissions/${id}/submit`).then((r) => r.data),
+};
+
+export const AnalyticsAPI = {
+  getStats: () => api.get("/analytics").then((r) => r.data),
 };
 
 export default api;
